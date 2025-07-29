@@ -89,3 +89,13 @@ footer {
     width: 100%;
     border: 1px solid #4CAF50;
   }
+  #visitor-box {
+        font-size: 12px;
+        padding: 4px 6px;
+        border: 1px solid #ccc;
+        width: 80px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 4px;
+        position: center ; /* 可選擇右上角顯示 */
+
+        }
