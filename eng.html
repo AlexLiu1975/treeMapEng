@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaohsiung Medical University Campus Tree Map System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+        }
+        
+        #header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #header h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        
+        #container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+        
+        #map-container {
+            flex: 3;
+            position: relative;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+        
+        #campus-map {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: #f0f0f0;
+        }
+        
+        .tree-marker {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 8px;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .tree-marker:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            z-index: 100;
+        }
+        
+        #sidebar {
+            flex: 1;
+            padding: 15px;
+            background-color: #f5f5f5;
+            overflow-y: auto;
+            border-right: 1px solid #ddd;
+            min-width: 300px;
+        }
+        
+        .tree-card {
+            background: white;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+        }
+        
+        .tree-card:hover {
+            background-color: #e8f5e9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .tree-number {
+            background-color: #2e7d32;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        
+        .tree-info {
+            flex-grow: 1;
+        }
+        
+        .tree-card h3 {
+            margin-top: 0;
+            color: #2e7d32;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .tree-card .scientific-name {
+            font-style: italic;
+            color: #666;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+        
+        .filter-section {
+            margin-bottom: 15px;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+        
+        .family {
+            background-color: #e3f2fd;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            color: #0d47a1;
+        }
+        
+        .count {
+            background-color: #2e7d32;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.8em;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+        
+        .status.healthy {
+            background-color: #c8e6c9;
+            color: #1b5e20;
+        }
+        
+        .status.dead {
+            background-color: #ef9a9a;
+            color: #b71c1c;
+        }
+        
+        .status.hedge {
+            background-color: #bbdefb;
+            color: #0d47a1;
+        }
+        
+        @media (max-width: 768px) {
+            #container {
+                flex-direction: column;
+            }
+            #map-container {
+                height: 60vh;
+            }
+            #sidebar {
+                min-width: auto;
+            }
+        }
+        
+        #total-count {
+            background-color: #1b5e20;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        #visitor-count {
+            background-color: #1b5e20;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        #online-count {
+            background-color: #1b5e20;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .tree-popup {
+            position: absolute;
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 280px;
+            display: none;
+        }
+        
+        .tree-popup h3 {
+            margin-top: 0;
+            color: #2e7d32;
+        }
+        
+        .tree-popup .popup-number {
+            background-color: #2e7d32;
+            color: white;
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        
+        .tree-popup img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+        
+        .tree-details {
+            margin-top: 10px;
+        }
+        
+        .tree-details p {
+            margin: 5px 0;
+        }
+        
+        .tree-popup a {
+            color: #2e7d32;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .tree-popup a:hover {
+            text-decoration: underline;
+        }
+        
+        .close-popup {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1><i class="fas fa-tree"></i> Kaohsiung Medical University Campus Tree Map System</h1>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div id="total-count">Total: Calculating...</div>
+            <div id="visitor-count">
+                <i class="fas fa-users"></i> Visitors: <span id="visitor-number">0</span>
+            </div>
+            <div id="online-count">
+                <i class="fas fa-globe"></i> Online: <span id="online-number">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <div id="container">
+        <div id="sidebar">
+            <div class="filter-section">
+                <h3><i class="fas fa-filter"></i> Filters</h3>
+                <label for="family">Family:</label>
+                <select id="family">
+                    <option value="all">All Families</option>
+                </select>
+                
+                <label for="species">Species:</label>
+                <select id="species">
+                    <option value="all">All Species</option>
+                </select>
+                
+                <label for="search">Search (ID/Name/Scientific Name):</label>
+                <input type="text" id="search" placeholder="Enter keywords...">
+                
+                <div style="margin-top: 10px;">
+                    <button id="reset-filters" style="width: 100%; padding: 8px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+                        <i class="fas fa-sync-alt"></i> Reset Filters
+                    </button>
+                </div>
+            </div>
+            
+            <div id="tree-list">
+                <p style="text-align: center;">Loading tree data...</p>
+            </div>
+        </div>
+        
+        <div id="map-container">
+            <img id="campus-map" src="https://oga.kmu.edu.tw/images/treemap/eng/images/KMU_University_all.png" alt="KMU Campus Map">
+            <div id="tree-popup" class="tree-popup">
+                <span class="close-popup"><i class="fas fa-times"></i></span>
+                <div id="popup-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+    <script>
+        // 初始化 Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCqQWKyPREF0f49reU64OmbWJkAkDqDPmg",
+            authDomain: "kmu-tree-map-2ead3.firebaseapp.com",
+            databaseURL: "https://kmu-tree-map-2ead3-default-rtdb.firebaseio.com",
+            projectId: "kmu-tree-map-2ead3",
+            storageBucket: "kmu-tree-map-2ead3.appspot.com",
+            messagingSenderId: "269552429582",
+            appId: "1:269552429582:web:dacbbdf305cae74fad6a5f",
+            measurementId: "G-7WN0D6XK58"
+        };
+
+        // 初始化 Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // 瀏覽人數計數器
+        function updateVisitorCount() {
+            const countRef = database.ref('visitorCount');
+            const sessionKey = 'kmuTreeMapVisit';
+            
+            countRef.transaction((currentCount) => {
+                return (currentCount || 0) + 1;
+            }).then(() => {
+                sessionStorage.setItem(sessionKey, '1');
+                countRef.on('value', (snap) => {
+                    document.getElementById('visitor-number').textContent = snap.val();
+                });
+            }).catch((error) => {
+                console.error("Firebase錯誤:", error);
+                let count = localStorage.getItem('visitorCount') || 0;
+                count = parseInt(count) + 1;
+                localStorage.setItem('visitorCount', count);
+                document.getElementById('visitor-number').textContent = count;
+            });
+        }
+
+        // 線上人數計數器
+        function trackOnlineUsers() {
+            const userId = 'user_' + Math.random().toString(36).substr(2, 9);
+            const userStatusRef = database.ref('onlineUsers/' + userId);
+            const connectedRef = database.ref('.info/connected');
+
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    userStatusRef.set({
+                        online: true,
+                        lastActive: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    
+                    userStatusRef.onDisconnect().remove();
+                    
+                    database.ref('onlineUsers').on('value', (snap) => {
+                        document.getElementById('online-number').textContent = snap.numChildren();
+                    });
+                }
+            });
+        }
+
+        // 樹木數據
+        const trees = [
+            /*
+            //{id: "1", 科: "柏科 (Cupressaceae)", 種: "圓柏(真柏、檜柏)", scientificName: "Juniperus chinensis L.", 數量: 1, url: "https://temperate.theferns.info/plant/Juniperus+chinensis", status: "healthy", coords: "2558,1061,20"},
+            
+            {id: "1", 科: "(Cupressaceae)柏科", 種: "Juniperus chinensis L.圓柏(真柏、檜柏)", scientificName: "Juniperus chinensis L.", 數量: 1, url: "https://temperate.theferns.info/plant/Juniperus+chinensis", status: "healthy",  location:  [0.735, 0.41]},
+            {id: "2", 科: "(Arecaceae)棕櫚科", 種: "Caryota mitis Lour.叢立孔雀椰子", scientificName: "Caryota mitis Lour.", 數量: "樹籬", url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2607", status: "hedge", location:  [0.66, 0.41], image: "images/Caryota_mitis_Lour.jpg"},
+            
+            {id: "3-1", 科: "(Arecaceae)棕櫚科", 種: "Chrysalidocarpus lutescens H.Wendl.黃椰子", scientificName: "Chrysalidocarpus lutescens H.Wendl.", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2622", status: "healthy", location: [0.38, 0.43], image: "images/Chrysalidocarpus_lutescens_H.Wendl.jpg"},
+            {id: "3-2", 科: "(Arecaceae)棕櫚科", 種: "Chrysalidocarpus lutescens H.Wendl.黃椰子", scientificName: "Chrysalidocarpus lutescens H.Wendl.", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2622", status: "healthy", location: [0.65, 0.36], image: "images/Chrysalidocarpus_lutescens_H.Wendl.jpg"},
+            {id: "3-3", 科: "(Arecaceae)棕櫚科", 種: "Chrysalidocarpus lutescens H.Wendl.黃椰子", scientificName: "Chrysalidocarpus lutescens H.Wendl.", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2622", status: "healthy", location: [0.67, 0.36] , image: "images/Chrysalidocarpus_lutescens_H.Wendl.jpg"},
+            {id: "3-4", 科: "(Arecaceae)棕櫚科", 種: "Chrysalidocarpus lutescens H.Wendl.黃椰子", scientificName: "Chrysalidocarpus lutescens H.Wendl.", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2622", status: "healthy", location: [0.655, 0.43], image: "images/Chrysalidocarpus_lutescens_H.Wendl.jpg"},
+            {id: "3-5", 科: "(Arecaceae)棕櫚科", 種: "Chrysalidocarpus lutescens H.Wendl.黃椰子", scientificName: "Chrysalidocarpus lutescens H.Wendl.", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2622", status: "healthy", location: [0.685, 0.431], image: "images/Chrysalidocarpus_lutescens_H.Wendl.jpg"},
+            
+            {id: "4", 科: "(Arecaceae)棕櫚科", 種: "Hyophorbe lagenicaulis (L.H.Bailey) H.E.Moore酒瓶椰子", scientificName: "Hyophorbe lagenicaulis (L.H.Bailey) H.E.Moore", 數量: 1, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2631", status: "healthy", location: [0.73, 0.42], image: "/images/Hyophorbe_lagenicaulis_(L.H.Bailey).jpg"},
+            {id: "5", 科: "(Arecaceae)棕櫚科", 種: "Phoenix dactylifera L.海棗", scientificName: "Phoenix dactylifera L.", 數量: 1, url: "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:668912-1/general-information", status: "healthy", location: [0.706, 0.47], image:"/images/Phoenix_dactylifera_L.jpg"},
+           
+            {id: "6-1", 科: "(Arecaceae)棕櫚科", 種: "Phoenix roebelenii O'Brien羅比親王海棗", scientificName: "Phoenix roebelenii O'Brien", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2665", status: "healthy", location: [0.73, 0.41], image: "/images/Phoenix_roebelenii_O'Brien.jpg"},
+            {id: "6-2", 科: "(Arecaceae)棕櫚科", 種: "Phoenix roebelenii O'Brien羅比親王海棗", scientificName: "Phoenix roebelenii O'Brien", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2665", status: "healthy", location: [0.71, 0.41], image: "/images/Phoenix_roebelenii_O'Brien.jpg"},
+            {id: "6-3", 科: "(Arecaceae)棕櫚科", 種: "Phoenix roebelenii O'Brien羅比親王海棗", scientificName: "Phoenix roebelenii O'Brien", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2665", status: "healthy", location: [0.71, 0.47], image: "/images/Phoenix_roebelenii_O'Brien.jpg"},
+            {id: "6-4", 科: "(Arecaceae)棕櫚科", 種: "Phoenix roebelenii O'Brien羅比親王海棗", scientificName: "Phoenix roebelenii O'Brien", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2665", status: "healthy", location: [0.668, 0.5], image: "/images/Phoenix_roebelenii_O'Brien.jpg"},
+            {id: "6-5", 科: "(Arecaceae)棕櫚科", 種: "Phoenix roebelenii O'Brien羅比親王海棗", scientificName: "Phoenix roebelenii O'Brien", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2665", status: "healthy", location: [0.408, 0.417], image: "/images/Phoenix_roebelenii_O'Brien.jpg"},
+           
+            {id: "7-1", 科: "(Arecaceae)棕櫚科", 種: "Rhapis excelsa (Thunb.) A.Henry觀音棕竹", scientificName: "Rhapis excelsa (Thunb.) A.Henry", 數量: "樹籬", url: "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:669577-1/general-information", status: "hedge", location: [0.66, 0.42]},
+            {id: "7-2", 科: "(Arecaceae)棕櫚科", 種: "Rhapis excelsa (Thunb.) A.Henry觀音棕竹", scientificName: "Rhapis excelsa (Thunb.) A.Henry", 數量: "樹籬", url: "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:669577-1/general-information", status: "hedge", location: [0.723, 0.42]},
+            
+            {id: "8-1", 科: "(Arecaceae)棕櫚科", 種: "Roystonea regia (Kunth) O.F.Cook大王椰子", scientificName: "Roystonea regia (Kunth) O.F.Cook", 數量: 52, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2682", status: "healthy", location: [0.7, 0.43]},
+            {id: "8-2", 科: "(Arecaceae)棕櫚科", 種: "Roystonea regia (Kunth) O.F.Cook大王椰子", scientificName: "Roystonea regia (Kunth) O.F.Cook", 數量: 52, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2682", status: "healthy", location: [0.7, 0.43]},
+            {id: "8-3", 科: "(Arecaceae)棕櫚科", 種: "Roystonea regia (Kunth) O.F.Cook大王椰子", scientificName: "Roystonea regia (Kunth) O.F.Cook", 數量: 52, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2682", status: "healthy", location: [0.7, 0.43]},
+            {id: "8-4", 科: "(Arecaceae)棕櫚科", 種: "Roystonea regia (Kunth) O.F.Cook大王椰子", scientificName: "Roystonea regia (Kunth) O.F.Cook", 數量: 52, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2682", status: "healthy", location: [0.7, 0.43]},
+            
+            {id: "9", 科: "(Arecaceae)棕櫚科", 種: "Washingtonia filifera (Rafarin) H.Wendl. ex de Bary var. robusta (H.Wendl.) Parish華盛頓椰子", scientificName: "Washingtonia filifera (Rafarin) H.Wendl. ex de Bary var. robusta (H.Wendl.) Parish", 數量: 9, url: "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:267791-2/general-information#descriptions", status: "healthy", location: [0.67, 0.33]}
+       
+       */
+       
+            {id: "1", 科: "(Cupressaceae)柏科", 種: "Juniperus chinensis L.圓柏(真柏、檜柏)", scientificName: "Juniperus chinensis L.", 數量: 1, url: "https://temperate.theferns.info/plant/Juniperus+chinensis", location:  [0.735, 0.41]},
+            {id: "2", 科: "(Arecaceae)棕櫚科", 種: "Caryota mitis Lour.叢立孔雀椰子", scientificName: "Caryota mitis Lour.", 數量: "樹籬", url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2607", location:  [0.66, 0.41], image: "images/Caryota_mitis_Lour.jpg"},
+            
+            {id: "3-1", 科: "(Arecaceae)棕櫚科", 種: "Chrysalidocarpus lutescens H.Wendl.黃椰子", scientificName: "Chrysalidocarpus lutescens H.Wendl.", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2622", location: [0.38, 0.43], image: "images/Chrysalidocarpus_lutescens_H.Wendl.jpg"},
+            {id: "3-2", 科: "(Arecaceae)棕櫚科", 種: "Chrysalidocarpus lutescens H.Wendl.黃椰子", scientificName: "Chrysalidocarpus lutescens H.Wendl.", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2622", location: [0.65, 0.36], image: "images/Chrysalidocarpus_lutescens_H.Wendl.jpg"},
+            {id: "3-3", 科: "(Arecaceae)棕櫚科", 種: "Chrysalidocarpus lutescens H.Wendl.黃椰子", scientificName: "Chrysalidocarpus lutescens H.Wendl.", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2622", location: [0.67, 0.36] , image: "images/Chrysalidocarpus_lutescens_H.Wendl.jpg"},
+            {id: "3-4", 科: "(Arecaceae)棕櫚科", 種: "Chrysalidocarpus lutescens H.Wendl.黃椰子", scientificName: "Chrysalidocarpus lutescens H.Wendl.", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2622", location: [0.655, 0.43], image: "images/Chrysalidocarpus_lutescens_H.Wendl.jpg"},
+            {id: "3-5", 科: "(Arecaceae)棕櫚科", 種: "Chrysalidocarpus lutescens H.Wendl.黃椰子", scientificName: "Chrysalidocarpus lutescens H.Wendl.", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2622", location: [0.685, 0.431], image: "images/Chrysalidocarpus_lutescens_H.Wendl.jpg"},
+            
+            {id: "4", 科: "(Arecaceae)棕櫚科", 種: "Hyophorbe lagenicaulis (L.H.Bailey) H.E.Moore酒瓶椰子", scientificName: "Hyophorbe lagenicaulis (L.H.Bailey) H.E.Moore", 數量: 1, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2631", location: [0.73, 0.42], image: "/images/Hyophorbe_lagenicaulis_(L.H.Bailey).jpg"},
+            {id: "5", 科: "(Arecaceae)棕櫚科", 種: "Phoenix dactylifera L.海棗", scientificName: "Phoenix dactylifera L.", 數量: 1, url: "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:668912-1/general-information", location: [0.706, 0.47], image:"/images/Phoenix_dactylifera_L.jpg"},
+           
+            {id: "6-1", 科: "(Arecaceae)棕櫚科", 種: "Phoenix roebelenii O'Brien羅比親王海棗", scientificName: "Phoenix roebelenii O'Brien", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2665", location: [0.73, 0.41], image: "/images/Phoenix_roebelenii_O'Brien.jpg"},
+            {id: "6-2", 科: "(Arecaceae)棕櫚科", 種: "Phoenix roebelenii O'Brien羅比親王海棗", scientificName: "Phoenix roebelenii O'Brien", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2665", location: [0.71, 0.41], image: "/images/Phoenix_roebelenii_O'Brien.jpg"},
+            {id: "6-3", 科: "(Arecaceae)棕櫚科", 種: "Phoenix roebelenii O'Brien羅比親王海棗", scientificName: "Phoenix roebelenii O'Brien", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2665", location: [0.71, 0.47], image: "/images/Phoenix_roebelenii_O'Brien.jpg"},
+            {id: "6-4", 科: "(Arecaceae)棕櫚科", 種: "Phoenix roebelenii O'Brien羅比親王海棗", scientificName: "Phoenix roebelenii O'Brien", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2665", location: [0.668, 0.5], image: "/images/Phoenix_roebelenii_O'Brien.jpg"},
+            {id: "6-5", 科: "(Arecaceae)棕櫚科", 種: "Phoenix roebelenii O'Brien羅比親王海棗", scientificName: "Phoenix roebelenii O'Brien", 數量: 5, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2665", location: [0.408, 0.417], image: "/images/Phoenix_roebelenii_O'Brien.jpg"},
+           
+            {id: "7-1", 科: "(Arecaceae)棕櫚科", 種: "Rhapis excelsa (Thunb.) A.Henry觀音棕竹", scientificName: "Rhapis excelsa (Thunb.) A.Henry", 數量: "樹籬", url: "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:669577-1/general-information", location: [0.66, 0.42]},
+            {id: "7-2", 科: "(Arecaceae)棕櫚科", 種: "Rhapis excelsa (Thunb.) A.Henry觀音棕竹", scientificName: "Rhapis excelsa (Thunb.) A.Henry", 數量: "樹籬", url: "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:669577-1/general-information", location: [0.723, 0.42]},
+            
+            {id: "8-1", 科: "(Arecaceae)棕櫚科", 種: "Roystonea regia (Kunth) O.F.Cook大王椰子", scientificName: "Roystonea regia (Kunth) O.F.Cook", 數量: 52, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2682", location: [0.7, 0.43]},
+            {id: "8-2", 科: "(Arecaceae)棕櫚科", 種: "Roystonea regia (Kunth) O.F.Cook大王椰子", scientificName: "Roystonea regia (Kunth) O.F.Cook", 數量: 52, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2682", location: [0.7, 0.43]},
+            {id: "8-3", 科: "(Arecaceae)棕櫚科", 種: "Roystonea regia (Kunth) O.F.Cook大王椰子", scientificName: "Roystonea regia (Kunth) O.F.Cook", 數量: 52, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2682", location: [0.7, 0.43]},
+            {id: "8-4", 科: "(Arecaceae)棕櫚科", 種: "Roystonea regia (Kunth) O.F.Cook大王椰子", scientificName: "Roystonea regia (Kunth) O.F.Cook", 數量: 52, url: "https://www.nparks.gov.sg/florafaunaweb/flora/2/6/2682", location: [0.7, 0.43]},
+            
+            {id: "9", 科: "(Arecaceae)棕櫚科", 種: "Washingtonia filifera (Rafarin) H.Wendl. ex de Bary var. robusta (H.Wendl.) Parish華盛頓椰子", scientificName: "Washingtonia filifera (Rafarin) H.Wendl. ex de Bary var. robusta (H.Wendl.) Parish", 數量: 9, url: "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:267791-2/general-information#descriptions", location: [0.67, 0.33]}
+               
+       
+        ];
+     
+        // 地圖相關變量
+        let mapImage;
+        let markers = [];
+        let currentPopup = null;
+
+        // 頁面載入完成後初始化
+        window.onload = function() {
+            updateVisitorCount();
+            trackOnlineUsers();
+            initMap();
+            initEventListeners();
+        };
+
+        // 初始化地圖
+        function initMap() {
+            mapImage = document.getElementById('campus-map');
+            
+            // 等待圖片載入完成
+            mapImage.onload = function() {
+                createMarkers();
+                initFilters();
+                updateTreeList(trees);
+            };
+            
+            // 如果圖片已經載入
+            if (mapImage.complete) {
+                mapImage.onload();
+            }
+        }
+
+        // 創建標記
+        function createMarkers() {
+            const mapContainer = document.getElementById('map-container');
+            const mapWidth = mapImage.clientWidth;
+            const mapHeight = mapImage.clientHeight;
+            
+            trees.forEach(tree => {
+                if (tree.location) {
+                    // 計算標記的絕對位置（基於相對座標）
+                    const x = tree.location[0] * mapWidth;
+                    const y = tree.location[1] * mapHeight;
+                    
+                    // 根據狀態選擇顏色
+                    let markerColor;
+                    switch(tree.status) {
+                        case 'healthy': markerColor = '#4CAF50'; break;
+                        case 'hedge': markerColor = '#2196F3'; break;
+                        case 'dead': markerColor = '#F44336'; break;
+                        default: markerColor = '#FF9800';
+                    }
+                    
+                    // 創建標記元素
+                    const marker = document.createElement('div');
+                    marker.className = 'tree-marker';
+                    marker.style.backgroundColor = markerColor;
+                    marker.style.left = `${x}px`;
+                    marker.style.top = `${y}px`;
+                    marker.textContent = tree.id;
+                    marker.title = `${tree.id}. ${tree.種}`;
+                    
+                    // 點擊標記事件
+                    marker.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        showTreePopup(tree, x, y);
+                    });
+                    
+                    mapContainer.appendChild(marker);
+                    markers.push({
+                        element: marker,
+                        tree: tree
+                    });
+                }
+            });
+            
+            // 點擊地圖關閉彈窗
+            mapContainer.addEventListener('click', () => {
+                if (currentPopup) {
+                    document.getElementById('tree-popup').style.display = 'none';
+                    currentPopup = null;
+                }
+            });
+            
+            // 關閉彈窗按鈕
+            document.querySelector('.close-popup').addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById('tree-popup').style.display = 'none';
+                currentPopup = null;
+            });
+        }
+
+        // 顯示樹木彈窗
+        function showTreePopup(tree, x, y) {
+            const popup = document.getElementById('tree-popup');
+            const popupContent = document.getElementById('popup-content');
+            
+            popupContent.innerHTML = `
+                <h3><span class="popup-number">${tree.id}</span> ${tree.種}</h3>
+                <img src="${tree.image || 'images/default-tree.jpg'}" alt="${tree.種}" 
+                     onerror="this.onerror=null;this.src='images/default-tree.jpg'">
+                <div class="tree-details">
+                    <p><strong>科別:</strong> ${tree.科}</p>
+                    <p><strong>學名:</strong> <em>${tree.scientificName}</em></p>
+                    <p><strong>數量:</strong> ${typeof tree.數量 === 'number' ? tree.數量 + '棵' : tree.數量}</p>
+                    <a href="${tree.url}" target="_blank" style="color: #2e7d32;">
+                        <i class="fas fa-external-link-alt"></i> 更多資訊
+                    </a>
+                </div>
+            `;
+            
+            // 定位彈窗
+            const popupWidth = popup.offsetWidth;
+            const popupHeight = popup.offsetHeight;
+            const mapContainer = document.getElementById('map-container');
+            const containerWidth = mapContainer.clientWidth;
+            const containerHeight = mapContainer.clientHeight;
+            
+            let left = x;
+            let top = y;
+            
+            // 確保彈窗不會超出地圖邊界
+            if (x + popupWidth > containerWidth) {
+                left = containerWidth - popupWidth - 10;
+            }
+            if (y + popupHeight > containerHeight) {
+                top = containerHeight - popupHeight - 10;
+            }
+            
+            popup.style.left = `${left}px`;
+            popup.style.top = `${top}px`;
+            popup.style.display = 'block';
+            
+            currentPopup = tree;
+        }
+
+        // 初始化篩選選項
+        function initFilters() {
+            const familySelect = document.getElementById('family');
+            const families = [...new Set(trees.map(tree => tree.科))];
+            
+            families.sort().forEach(family => {
+                const option = document.createElement('option');
+                option.value = family;
+                option.textContent = family;
+                familySelect.appendChild(option);
+            });
+            
+            updateSpeciesOptions('all');
+        }
+
+        // 更新樹種選項
+        function updateSpeciesOptions(selectedFamily) {
+            const speciesSelect = document.getElementById('species');
+            speciesSelect.innerHTML = '<option value="all">All Species</option>';
+            
+            const speciesList = selectedFamily === 'all' 
+                ? [...new Set(trees.map(tree => tree.種))]
+                : [...new Set(trees.filter(tree => tree.科 === selectedFamily).map(tree => tree.種))];
+            
+            speciesList.sort().forEach(species => {
+                const option = document.createElement('option');
+                option.value = species;
+                option.textContent = species;
+                speciesSelect.appendChild(option);
+            });
+        }
+
+        // 更新樹木列表
+        function updateTreeList(filteredTrees) {
+            const treeListContainer = document.getElementById('tree-list');
+            const totalCountElement = document.getElementById('total-count');
+            
+            // 更新總數
+            totalCountElement.textContent = `Total: ${filteredTrees.length}`;
+            
+            // 隱藏所有標記
+            markers.forEach(marker => {
+                marker.element.style.display = 'none';
+            });
+            
+            if (filteredTrees.length === 0) {
+                treeListContainer.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-tree"></i>
+                        <p>No matching trees found</p>
+                    </div>`;
+                return;
+            }
+            
+            // 更新列表
+            treeListContainer.innerHTML = '';
+            filteredTrees.forEach(tree => {
+                const treeCard = document.createElement('div');
+                treeCard.className = 'tree-card';
+                treeCard.innerHTML = `
+                    <div class="tree-number">${tree.id}</div>
+                    <div class="tree-info">
+                        <h3>${tree.種} ${getCountBadge(tree.數量)} ${getStatusBadge(tree.status)}</h3>
+                        <div class="scientific-name">${tree.scientificName}</div>
+                        <div class="family">${tree.科}</div>
+                    </div>
+                `;
+                
+                // 點擊卡片時定位到地圖標記
+                treeCard.addEventListener('click', () => {
+                    const marker = markers.find(m => m.tree.id === tree.id);
+                    if (marker) {
+                        const mapContainer = document.getElementById('map-container');
+                        const markerRect = marker.element.getBoundingClientRect();
+                        const containerRect = mapContainer.getBoundingClientRect();
+                        
+                        // 滾動到標記位置
+                        mapContainer.scrollTo({
+                            left: markerRect.left - containerRect.left - containerRect.width/2 + markerRect.width/2,
+                            top: markerRect.top - containerRect.top - containerRect.height/2 + markerRect.height/2,
+                            behavior: 'smooth'
+                        });
+                        
+                        // 顯示彈窗
+                        showTreePopup(
+                            tree, 
+                            markerRect.left - containerRect.left, 
+                            markerRect.top - containerRect.top
+                        );
+                    }
+                });
+                
+                treeListContainer.appendChild(treeCard);
+                
+                // 顯示對應的標記
+                const marker = markers.find(m => m.tree.id === tree.id);
+                if (marker) {
+                    marker.element.style.display = 'block';
+                }
+            });
+        }
+
+        // 篩選樹木
+        function filterTrees() {
+            const family = document.getElementById('family').value;
+            const species = document.getElementById('species').value;
+            const searchTerm = document.getElementById('search').value.toLowerCase();
+            
+            const filtered = trees.filter(tree => {
+                const matchFamily = family === 'all' || tree.科 === family;
+                const matchSpecies = species === 'all' || tree.種 === species;
+                const matchSearch = searchTerm === '' || 
+                    tree.id.toLowerCase().includes(searchTerm) ||
+                    tree.種.toLowerCase().includes(searchTerm) ||
+                    (tree.scientificName && tree.scientificName.toLowerCase().includes(searchTerm));
+                
+                return matchFamily && matchSpecies && matchSearch;
+            });
+            
+            updateTreeList(filtered);
+        }
+
+        // 輔助函數
+        function getCountBadge(count) {
+            if (typeof count === 'number') return `<span class="count">${count}棵</span>`;
+            if (count === '樹籬') return '<span class="status hedge">樹籬</span>';
+            return '';
+        }
+
+        function getStatusBadge(status) {
+            if (!status) return '';
+            const statusText = status === 'healthy' ? '健康' : status === 'dead' ? '枯死' : '樹籬';
+            return `<span class="status ${status}">${statusText}</span>`;
+        }
+
+        // 初始化事件監聽
+        function initEventListeners() {
+            document.getElementById('family').addEventListener('change', function() {
+                updateSpeciesOptions(this.value);
+                filterTrees();
+            });
+            
+            document.getElementById('species').addEventListener('change', filterTrees);
+            document.getElementById('search').addEventListener('input', filterTrees);
+            
+            document.getElementById('reset-filters').addEventListener('click', () => {
+                document.getElementById('family').value = 'all';
+                document.getElementById('species').value = 'all';
+                document.getElementById('search').value = '';
+                updateSpeciesOptions('all');
+                filterTrees();
+            });
+            
+            // 視窗大小改變時重新定位標記
+            window.addEventListener('resize', () => {
+                const mapWidth = mapImage.clientWidth;
+                const mapHeight = mapImage.clientHeight;
+                
+                markers.forEach(marker => {
+                    if (marker.tree.location) {
+                        marker.element.style.left = `${marker.tree.location[0] * mapWidth}px`;
+                        marker.element.style.top = `${marker.tree.location[1] * mapHeight}px`;
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>

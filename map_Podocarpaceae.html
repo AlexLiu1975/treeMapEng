@@ -1,0 +1,495 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Campus Tree Map - 羅漢松科 (Podocarpaceae)</title>
+	<!-- 外部CSS樣式表	-->
+	<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="https://oga.kmu.edu.tw/images/treemap/style.css">
+</head>
+	
+<style>
+	img{
+		width: 100%;
+	}
+	#back {
+		background-color: rgb(220, 183, 245);
+	}
+	</style>
+
+<body>
+	<!-- Navigation Menu -->
+    <ul class="drop-down-menu">
+        <button>
+            <li><a href="index.html">Campus Tree Map</a></li>
+        </button>
+        
+        <!-- Cupressaceae -->
+        <button>
+            <li><a href="map_Cupressaceae.html">Cupressaceae</a>
+                <ul>
+                    <li><a href="#">1 Juniperus chinensis L.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Palmae -->
+        <button>
+            <li><a href="map_Palmae.html">Palmae</a>
+                <ul>
+                    <li><a href="#">2 Caryota mitis Lour.</a></li>
+                    <li><a href="#">3 Chrysalidocarpus lutescens H.Wendl.</a></li>
+                    <li><a href="#">4 Hyophorbe lagenicaulis (L.H.Bailey) H.E.Moore</a></li>
+                    <li><a href="#">5 Phoenix dactylifera L.</a></li>
+                    <li><a href="#">6 Phoenix roebelenii O'Brien</a></li>
+                    <li><a href="#">7 Rhapis excelsa (Thunb.) A.Henry</a></li>
+                    <li><a href="#">8 Roystonea regia (Kunth) O.F.Cook</a></li>
+                    <li><a href="#">9 Washingtonia filifera (Rafarin) H.Wendl. ex de Bary var. robusta (H.Wendl.) Parish</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Asparagaceae -->
+        <button>
+            <li><a href="map_Asparagaceae.html">Asparagaceae</a>
+                <ul>
+                    <li><a href="#">10 Cordyline fruticosa (L.) A.Chev.</a></li>
+                    <li><a href="#">11 Dracaena reflexa Lam. var. angustifolia Baker cv. Tricolor Rainbow</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Musaceae -->
+        <button>
+            <li><a href="map_Musaceae.html">Musaceae</a>
+                <ul>
+                    <li><a href="#">12 Musa itinerans Cheesman var. formosana (Warb.) Häkkinen & C.L.Yeh</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Cannabaceae -->
+        <button>
+            <li><a href="map_Cannabaceae.html">Cannabaceae</a>
+                <ul>
+                    <li><a href="#">13 Celtis tetrandra Roxb.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Moraceae -->
+        <button>
+            <li><a href="map_Moraceae.html">Moraceae</a>
+                <ul>
+                    <li><a href="#">14 Ficus elastica Roxb. ex Hornem.</a></li>
+                    <li><a href="#">15 Ficus microcarpa L.f.</a></li>
+                    <li><a href="#">16 Ficus religiosa L.</a></li>
+                    <li><a href="#">17 Morus indica L.</a></li>
+                    <li><a href="#">78 Ficus virgata Reinw. ex Blume</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Nyctaginaceae -->
+        <button>
+            <li><a href="map_Nyctaginaceae.html">Nyctaginaceae</a>
+                <ul>
+                    <li><a href="#">18 Bougainvillea spectabilis Willd.</a></li>
+                    <li><a href="#">19 Ceodes umbellifera J.R.Forst. & G.Forst.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Magnoliaceae -->
+        <button>
+            <li><a href="map_Magnoliaceae.html">Magnoliaceae</a>
+                <ul>
+                    <li><a href="#">20 Magnolia x alba (DC.) Figlar</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Lauraceae -->
+        <button>
+            <li><a href="map_Lauraceae.html">Lauraceae</a>
+                <ul>
+                    <li><a href="#">21 Camphora officinarum Boerh. ex Fabr.</a></li>
+                    <li><a href="#">22 Cinnamomum osmophloeum Kaneh.</a></li>
+                    <li><a href="#">23 Persea americana Mill.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Pittosporaceae -->
+        <button>
+            <li><a href="map_Pittosporaceae.html">Pittosporaceae</a>
+                <ul>
+                    <li><a href="#">24 Pittosporum pentandrum (Blanco) Merr.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Hamamelidaceae -->
+        <button>
+            <li><a href="map_Hamamelidaceae.html">Hamamelidaceae</a>
+                <ul>
+                    <li><a href="#">25 Liquidambar formosana Hance</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Rosaceae -->
+        <button>
+            <li><a href="map_Rosaceae.html">Rosaceae</a>
+                <ul>
+                    <li><a href="#">26 Pourthiaea arguta (Wall. ex Lindl.) Decne.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Leguminosae -->
+        <button>
+            <li><a href="map_Leguminosae.html">Leguminosae</a>
+                <ul>
+                    <li><a href="#">27 Bauhinia variegata L.</a></li>
+                    <li><a href="#">28 Cassia fistula L.</a></li>
+                    <li><a href="#">29 Delonix regia (Bojer ex Hook.) Raf.</a></li>
+                    <li><a href="#">30 Gleditsia rolfei S.Vidal</a></li>
+                    <li><a href="#">31 Pterocarpus indicus Willd.</a></li>
+                    <li><a href="#">32 Senna siamea (Lam.) H.S.Irwin & Barneby</a></li>
+                    <li><a href="#">79 Bauhinia x blakeana Dunn</a></li>
+                    <li><a href="#">80 Peltophorum pterocarpum (DC.) Backer ex K.Heyne</a></li>
+                    <li><a href="#">81 Haematoxylum campechianum L.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Rutaceae -->
+        <button>
+            <li><a href="map_Rutaceae.html">Rutaceae</a>
+                <ul>
+                    <li><a href="#">33 Bergera koenigii L.</a></li>
+                    <li><a href="#">34 Murraya paniculata (L.) Jack</a></li>    
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Meliaceae -->
+        <button>
+            <li><a href="map_Meliaceae.html">Meliaceae</a>
+                <ul>
+                    <li><a href="#">35 Aglaia odorata Lour.</a></li>
+                    <li><a href="#">36 Chukrasia tabularis A.Juss.</a></li>
+                    <li><a href="#">37 Swietenia macrophylla King</a></li>
+                    <li><a href="#">82 Melia azedarach L.</a></li>
+                    <li><a href="#">89 Aglaia elaeagnoidea (A.Juss.) Benth.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Ochnaceae -->
+        <button>
+            <li><a href="map_Ochnaceae.html">Ochnaceae</a>
+                <ul>
+                    <li><a href="#">38 Ochna kirkii Oliv.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Malpighiaceae -->
+        <button>
+            <li><a href="map_Malpighiaceae.html">Malpighiaceae</a>
+                <ul>
+                    <li><a href="#">39 Malpighia glabra L.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Euphorbiaceae -->
+        <button>
+            <li><a href="map_Euphorbiaceae.html">Euphorbiaceae</a>
+                <ul>
+                    <li><a href="#">40 Aleurites moluccana (L.) Willd.</a></li>
+                    <li><a href="#">41 Codiaeum variegatum (L.) Rumph. ex A.Juss.</a></li>
+                    <li><a href="#">42 Euphorbia tirucalli L.</a></li>
+                    <li><a href="#">83 Bridelia tomentosa Blume</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Phyllanthaceae -->
+        <button>
+            <li><a href="map_Phyllanthaceae.html">Phyllanthaceae</a>
+                <ul>
+                    <li><a href="#">43 Antidesma montanum Blume</a></li>
+                    <li><a href="#">44 Bischofia javanica Blume</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Sapindaceae -->
+        <button>
+            <li><a href="map_Sapindaceae.html">Sapindaceae</a>
+                <ul>
+                    <li><a href="#">45 Koelreuteria elegans (Seem.) A.C.Sm. subsp. formosana (Hayata) F.G.Mey.</a></li>
+                    <li><a href="#">84 Sapindus saponaria L.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Elaeocarpaceae -->
+        <button>
+            <li><a href="map_Elaeocarpaceae.html">Elaeocarpaceae</a>
+                <ul>
+                    <li><a href="#">46 Elaeocarpus serratus L.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Muntingiaceae -->
+        <button>
+            <li><a href="map_Muntingiaceae.html">Muntingiaceae</a>
+                <ul>
+                    <li><a href="#">47 Muntingia calabura L.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Malvaceae -->
+        <button>
+            <li><a href="map_Malvaceae.html">Malvaceae</a>
+                <ul>
+                    <li><a href="#">48 Hibiscus rosa-sinensis L.</a></li>
+                    <li><a href="#">49 Pachira aquatica Aubl.</a></li>
+                    <li><a href="#">50 Sterculia foetida L.</a></li>
+                    <li><a href="#">51 Reevesia thyrsoidea Lindl.</a></li>
+                    <li><a href="#">85 Ceiba speciosa (A.St.-Hil., A.Juss. & Cambess.) Ravenna</a></li>
+                    <li><a href="#">86 Hibiscus tiliaceus L.</a></li>
+                    <li><a href="#">87 Heritiera littoralis Aiton</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Clusiaceae -->
+        <button>
+            <li><a href="map_Clusiaceae.html">Clusiaceae</a>
+                <ul>
+                    <li><a href="#">52 Garcinia subelliptica Merr.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Bixaceae -->
+        <button>
+            <li><a href="map_Bixaceae.html">Bixaceae</a>
+                <ul>
+                    <li><a href="#">53 Bixa orellana L.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Salicaceae -->
+        <button>
+            <li><a href="map_Salicaceae.html">Salicaceae</a>
+                <ul>
+                    <li><a href="#">54 Homalium cochinchinense (Lour.) Druce</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Lythraceae -->
+        <button>
+            <li><a href="map_Lythraceae.html">Lythraceae</a>
+                <ul>
+                    <li><a href="#">55 Lagerstroemia indica L.</a></li>
+                    <li><a href="#">56 Lagerstroemia speciosa (L.) Pers.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Lecythidaceae -->
+        <button>
+            <li><a href="map_Lecythidaceae.html">Lecythidaceae</a>
+                <ul>
+                    <li><a href="#">57 Barringtonia racemosa (L.) Spreng.</a></li>
+                    <li><a href="#">88 Barringtonia asiatica (L.) Kurz</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Combretaceae -->
+        <button>
+            <li><a href="map_Combretaceae.html">Combretaceae</a>
+                <ul>
+                    <li><a href="#">58 Terminalia boivinii Tul.</a></li>
+                    <li><a href="#">59 Terminalia catappa L.</a></li>
+                    <li><a href="#">90 Terminalia calamansanai (Blanco) Rolfe</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Myrtaceae -->
+        <button>
+            <li><a href="map_Myrtaceae.html">Myrtaceae</a>
+                <ul>
+                    <li><a href="#">60 Eucalyptus robusta Sm.</a></li>
+                    <li><a href="#">61 Eugenia uniflora L.</a></li>
+                    <li><a href="#">62 Syzygium jambos (L.) Alston</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Araliaceae -->
+        <button>
+            <li><a href="map_Araliaceae.html">Araliaceae</a>
+                <ul>
+                    <li><a href="#">63 Heptapleurum arboricola Hayata</a></li>
+                    <li><a href="#">64 Plerandra elegantissima (H.J.Veitch ex Mast.) Lowry, G.M.Plunkett & Frodin</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Casuarinaceae -->
+        <button>
+            <li><a href="map_Casuarinaceae.html">Casuarinaceae</a>
+                <ul>
+                    <li><a href="#">92 Casuarina equisetifolia L.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Oleaceae -->
+        <button>
+            <li><a href="map_Oleaceae.html">Oleaceae</a>
+                <ul>
+                    <li><a href="#">68 Osmanthus fragrans Lour.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Apocynaceae -->
+        <button>
+            <li><a href="map_Apocynaceae.html">Apocynaceae</a>
+                <ul>
+                    <li><a href="#">69 Alstonia scholaris (L.) R.Br.</a></li>
+                    <li><a href="#">70 Cerbera manghas L.</a></li>
+                    <li><a href="#">71 Plumeria Rubra</a></li>
+                    <li><a href="#">72 Wrightia religiosa (Teijsm. & Binn.) Benth. ex Kurz</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Ericaceae -->
+        <button>
+            <li><a href="map_Ericaceae.html">Ericaceae</a>
+                <ul>
+                    <li><a href="#">65 Rhododendron x pulchrum Sweet</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Ebenaceae -->
+        <button>
+            <li><a href="map_Ebenaceae.html">Ebenaceae</a>
+                <ul>
+                    <li><a href="#">67 Diospyros blancoi A.DC.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Rubiaceae -->
+        <button>
+            <li><a href="map_Rubiaceae.html">Rubiaceae</a>
+                <ul>
+                    <li><a href="#">77 Ixora x casei Hance cv. Sunkist</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Icacinaceae -->
+        <button>
+            <li><a href="map_Icacinaceae.html">Icacinaceae</a>
+                <ul>
+                    <li><a href="#">94 Gonocaryum calleryanum (Baill.) Becc.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Verbenaceae -->
+        <button>
+            <li><a href="map_Verbenaceae.html">Verbenaceae</a>
+                <ul>
+                    <li><a href="#">73 Duranta erecta L.</a></li>
+                    <li><a href="#">74 Lantana camara L.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Primulaceae -->
+        <button>
+            <li><a href="map_Primulaceae.html">Primulaceae</a>
+                <ul>
+                    <li><a href="#">66 Ardisia elliptica Thunb.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Bignoniaceae -->
+        <button>
+            <li><a href="map_Bignoniaceae.html">Bignoniaceae</a>
+                <ul>
+                    <li><a href="#">75 Radermachera hainanensis Merr.</a></li>
+                    <li><a href="#">76 Spathodea campanulata P.Beauv.</a></li>
+                </ul>
+            </li>
+        </button>
+        
+        <!-- Podocarpaceae -->
+        <button>
+            <li><a href="map_Podocarpaceae.html">Podocarpaceae</a>
+                <ul>
+                    <li><a href="#">91 Podocarpus costalis C.Presl</a></li>
+                </ul>
+            </li>
+        </button>
+    </ul>
+
+	<table width="620" border="1" align="center">
+		<tbody>
+		  <tr>
+			<td width="45" align="center" bgcolor="#EB9313"><pre>ID</pre></td>
+			<td width="133" align="center" bgcolor="#EB9313"><pre>Family</pre></td>
+			<td width="157" align="center" bgcolor="#EB9313"><pre>Common Name</pre></td>
+			<td width="225" align="center" bgcolor="#EB9313"><pre>Scientific Name</pre></td>
+			<td width="26" align="center" bgcolor="#EB9313"><pre>Count</pre></td>
+		  </tr>
+		  <tr>
+			<td align="center">91</td>
+			<td align="center">羅漢松科  (Podocarpaceae)</td>
+			<td align="center">蘭嶼羅漢松</td>
+			<td align="center"><a href="https://www.treesandshrubsonline.org/articles/podocarpus/podocarpus-costalis/" target="_blank">Podocarpus costalis C.Presl</a></td>
+			<td align="center">2</td>
+		  </tr>
+		</tbody>
+	</table>
+
+
+<!--  羅漢松科 (Podocarpaceae) 91 -->
+<img src="image/KMU_University_Podocarpaceae.png" usemap="#image_map">
+<map name="image_map">
+
+<!-- 91.蘭嶼羅漢松 Podocarpus costalis C.Presl -->	
+	<area alt="蘭嶼羅漢松 Podocarpus costalis C.Presl" title="蘭嶼羅漢松 Podocarpus costalis C.Presl" 
+		href="https://www.treesandshrubsonline.org/articles/podocarpus/podocarpus-costalis/" coords="1052,2006,16" shape="circle" target="_blank">	
+	<area alt="蘭嶼羅漢松 Podocarpus costalis C.Presl" title="蘭嶼羅漢松 Podocarpus costalis C.Presl" 
+		href="https://www.treesandshrubsonline.org/articles/podocarpus/podocarpus-costalis/" coords="2161,1509,16" shape="circle" target="_blank">	
+	
+</map>		
+<script src="mapresizer.min.js"></script>
+	
+<script>
+	imageMapResize();
+	</script>
+	
+</body>
+</html>
