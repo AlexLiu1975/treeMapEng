@@ -1,26 +1,144 @@
 <!doctype html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>Campus Tree Map </title>
-	<!-- 外部CSS樣式表	-->
-	<link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" type="text/css" href="https://oga.kmu.edu.tw/images/treemap/style.css">
-</head>
-	
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Tree Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+
+<!-- External CSS -->
+<link rel="stylesheet" href="style.css">
 <style>
-	img{
-		width: 100%;
-	}
-	#back {
-		background-color: rgb(220, 183, 245);
-	}
+    img {
+        width: 100%;
+    }
+    #back {
+        background-color: rgb(220, 183, 245);
+    }
 
-	
-	</style>
+        #header {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #header h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
 
+        #visitor-count {
+            background-color: #1b5e20;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        #online-count {
+            background-color: #1b5e20;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+</style>
+
+
+</head>
+    
 <body>
+    <div id="header">
+        <h1><i class="fas fa-tree"></i> Kaohsiung Medical University Campus Tree Map System</h1>
+        <div style="display: flex; align-items: center; gap: 10px;">
 
+            <div id="visitor-count">
+                <i class="fas fa-users"></i> Visitors: <span id="visitor-number">0</span>            </div>
+            <div id="online-count">
+                <i class="fas fa-globe"></i> Online: <span id="online-number">0</span>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+    <script>
+    // 初始化 Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCqQWKyPREF0f49reU64OmbWJkAkDqDPmg",
+            authDomain: "kmu-tree-map-2ead3.firebaseapp.com",
+            databaseURL: "https://kmu-tree-map-2ead3-default-rtdb.firebaseio.com",
+            projectId: "kmu-tree-map-2ead3",
+            storageBucket: "kmu-tree-map-2ead3.appspot.com",
+            messagingSenderId: "269552429582",
+            appId: "1:269552429582:web:dacbbdf305cae74fad6a5f",
+            measurementId: "G-7WN0D6XK58"
+        };
+
+        // 初始化 Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // 瀏覽人數計數器
+        function updateVisitorCount() {
+            const countRef = database.ref('visitorCount');
+            const sessionKey = 'kmuTreeMapVisit';
+            
+            countRef.transaction((currentCount) => {
+                return (currentCount || 0) + 1;
+            }).then(() => {
+                sessionStorage.setItem(sessionKey, '1');
+                countRef.on('value', (snap) => {
+                    document.getElementById('visitor-number').textContent = snap.val();
+                });
+            }).catch((error) => {
+                console.error("Firebase錯誤:", error);
+                let count = localStorage.getItem('visitorCount') || 0;
+                count = parseInt(count) + 1;
+                localStorage.setItem('visitorCount', count);
+                document.getElementById('visitor-number').textContent = count;
+            });
+        }
+
+        // 線上人數計數器
+        function trackOnlineUsers() {
+            const userId = 'user_' + Math.random().toString(36).substr(2, 9);
+            const userStatusRef = database.ref('onlineUsers/' + userId);
+            const connectedRef = database.ref('.info/connected');
+
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    userStatusRef.set({
+                        online: true,
+                        lastActive: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    
+                    userStatusRef.onDisconnect().remove();
+                    
+                    database.ref('onlineUsers').on('value', (snap) => {
+                        document.getElementById('online-number').textContent = snap.numChildren();
+                    });
+                }
+            });
+        }
+        // 頁面載入完成後初始化
+        window.onload = function() {
+            updateVisitorCount();
+            trackOnlineUsers();
+            initMap();
+            initEventListeners();
+        };
+    </script>
+    <!-- Navigation Menu -->
     <ul class="drop-down-menu">
         <button>
 		<li><a href="index.html">Campus Tree Map</a>
@@ -1113,29 +1231,20 @@ href="https://www.nparks.gov.sg/florafaunaweb/flora/3/1/3132" coords="2173,1036,
         href="https://www.treesandshrubsonline.org/articles/podocarpus/podocarpus-costalis/" coords="2161,1509,16" shape="circle" target="_blank">	
     </map>
 
-    <script>
-        imageMapResize();
-        </script>
+
+    <!-- JavaScript -->
     <script src="mapresizer.min.js"></script>
-
     <script>
         imageMapResize();
-        </script>
+    </script>
+
+    <!-- Footer -->
     <center>
-        <h1>歡迎光臨！</h1>
-        <p>瀏覽人數 ：</p>
-
-        <!-- 計數器開始 -->
-        <div id="visitor-box">
-            <a href="https://www.hitwebcounter.com" target="_blank">
-                <img src="https://hitwebcounter.com/counter/counter.php?page=20613008&style=0005&nbdigits=5&type=page&initCount=250" 
-                    title="Counter Widget" Alt="Visit counter For Websites"   border="0" />
-                </a>     
-        </div>
-        <!-- 計數器結束 -->
-
-        <P>網頁維護單位：事務組 李佩珊
+   
+        <p>網頁維護單位：事務組 李佩珊
         <a href="mailto:peishanli@kmu.edu.tw">email</a>
     </center>
+
+       
 </body>
 </html>
